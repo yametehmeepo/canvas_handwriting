@@ -1,1 +1,3 @@
 # canvas_handwriting
+canvas_学写一个字
+用jq与canvas交互, 可以更改书写的颜色以及清空画板
