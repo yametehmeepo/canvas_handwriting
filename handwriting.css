@@ -1,7 +1,9 @@
 html,body{
 	margin: 0;
 	padding: 0;
+	-webkit-tap-highlight-color: rgba(255,0,0,0); 
 }
+
 .clearfix:before{
 	display: block;
 	clear: both;
@@ -15,7 +17,6 @@ html,body{
 	margin: 20px auto;
 }
 .btngroup{
-	width: 800px;
 	margin: 20px auto;
 }
 .clearbtn{
@@ -29,6 +30,7 @@ html,body{
 	text-align: center;
 	cursor: pointer;
 	border-radius: 4px;
+	margin: 10px 10px 0 0;
 }
 .clearbtn:hover{
 	background: #eefafa;
@@ -38,7 +40,7 @@ html,body{
 	float: left;
 	width: 40px;
 	height: 40px;
-	margin-right: 10px;
+	margin: 10px 10px 0 0;
 	cursor: pointer;
 	border-radius: 4px;
 	border: 4px solid #fff;

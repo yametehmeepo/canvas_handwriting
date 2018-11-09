@@ -1,6 +1,6 @@
 var canvas = document.getElementById('canvas');
 var context = canvas.getContext('2d');
-var canvasWidth = 800;
+var canvasWidth = Math.min(800, $(window).width() - 20);
 var canvasHeight = canvasWidth;
 var isMouseDown = false;
 var lastLoc = { x: 0, y: 0 };
@@ -8,49 +8,51 @@ var lastTime = 0;
 var lastLineWidth = -1
 var strokeColor = 'black';
 
+var minV = 0.1
+var maxV = 10
+var maxLineWidth = 3 * canvasWidth/80
+var minLineWidth = maxLineWidth/6
+
 window.onload = function(){
 	canvas.width = canvasWidth;
 	canvas.height = canvasHeight;
+	$('.btngroup').css('width', canvasWidth + 'px')
 	drawGrid();
 	canvas.onmousedown = function(e){
 		e.preventDefault();
-		isMouseDown = true;
-		lastLoc = windowToCanvas(e.clientX, e.clientY);
-		lastTime = new Date().getTime();
+		begin({x: e.clientX, y: e.clientY})
 	}
 	canvas.onmouseup = function(e){
 		e.preventDefault();
-		isMouseDown = false;
-		lastLineWidth = -1;
+		end()
 	}
 	canvas.onmouseout = function(e){
 		e.preventDefault();
-		isMouseDown = false;
-		lastLineWidth = -1;
+		end()
 	}
 	canvas.onmousemove = function(e){
 		e.preventDefault();
 		if(isMouseDown){
-			var curLoc = windowToCanvas(e.clientX, e.clientY);
-			var curTime = new Date().getTime();
-			var s = calcDistance(curLoc, lastLoc);
-			var t = curTime - lastTime;
-			var lineWidth = calcLineWidth(s, t);
-
-			context.beginPath();
-			context.moveTo(lastLoc.x, lastLoc.y);
-			context.lineTo(curLoc.x, curLoc.y);
-			context.strokeStyle = strokeColor;
-			context.lineWidth = lineWidth;
-			context.lineCap = 'round';
-			context.lineJoin = 'round';
-			context.stroke();
-
-			lastLoc = curLoc;
-			lastTime = curTime;
-			lastLineWidth = lineWidth
+			move({x: e.clientX, y: e.clientY})
 		}
 	}
+	canvas.addEventListener('touchstart', function(e){
+		e.preventDefault()
+		var touch = e.touches[0]
+		begin({x: touch.pageX, y: touch.pageY})
+	})
+	canvas.addEventListener('touchmove', function(e){
+		e.preventDefault()
+		var touch = e.touches[0]
+		if(isMouseDown){
+			move({x: touch.pageX, y: touch.pageY})
+		}
+	})
+	canvas.addEventListener('touchend', function(e){
+		e.preventDefault()
+		end()
+	})
+
 	$('#clearbtn').click(function(){
 		context.clearRect(0, 0, canvas.width, canvas.height)
 		drawGrid()
@@ -62,6 +64,38 @@ window.onload = function(){
 	})
 }
 
+function begin(point){
+	isMouseDown = true;
+	lastLoc = windowToCanvas(point.x, point.y);
+	lastTime = new Date().getTime();
+}
+
+function move(point){
+	var curLoc = windowToCanvas(point.x, point.y);
+	var curTime = new Date().getTime();
+	var s = calcDistance(curLoc, lastLoc);
+	var t = curTime - lastTime;
+	var lineWidth = calcLineWidth(s, t);
+
+	context.beginPath();
+	context.moveTo(lastLoc.x, lastLoc.y);
+	context.lineTo(curLoc.x, curLoc.y);
+	context.strokeStyle = strokeColor;
+	context.lineWidth = lineWidth;
+	context.lineCap = 'round';
+	context.lineJoin = 'round';
+	context.stroke();
+
+	lastLoc = curLoc;
+	lastTime = curTime;
+	lastLineWidth = lineWidth
+}
+
+
+function end(){
+	isMouseDown = false;
+	lastLineWidth = -1;
+}
 
 function drawGrid(){
 	context.save();
@@ -95,12 +129,6 @@ function windowToCanvas(clientX, clientY){
 function calcDistance(curLoc, lastLoc){
 	return Math.sqrt((curLoc.x - lastLoc.x) * (curLoc.x - lastLoc.x) + (curLoc.y - lastLoc.y) * (curLoc.y - lastLoc.y))
 }
-
-
-var minV = 0.1
-var maxV = 10
-var maxLineWidth = 30
-var minLineWidth = 5
 
 function calcLineWidth(s, t){
 	var v = s/t
